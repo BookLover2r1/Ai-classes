@@ -1,0 +1,95 @@
+import random
+from collections import Counter
+import os
+
+class RockPaperScissorsAI:
+    def __init__(self):
+        self.player_history = []
+        self.player_score = 0
+        self.ai_score = 0
+        
+    def clear_screen(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+    
+    def get_winning_move(self, player_move):
+        """Returns what beats the given move"""
+        wins = {'rock': 'paper', 'paper': 'scissors', 'scissors': 'rock'}
+        return wins[player_move]
+    
+    def ai_choose(self):
+        """Smart AI: predicts player's most common recent choice and counters"""
+        if len(self.player_history) < 3:
+            return random.choice(['rock', 'paper', 'scissors'])
+        
+        # Analyze last 5 moves (or fewer)
+        recent = self.player_history[-5:]
+        most_common = Counter(recent).most_common(1)[0][0]
+        
+        # 70% chance to counter prediction, 30% random
+        if random.random() < 0.7:
+            return self.get_winning_move(most_common)
+        return random.choice(['rock', 'paper', 'scissors'])
+    
+    def get_player_choice(self):
+        while True:
+            choice = input("\nYour choice (rock/paper/scissors): ").lower().strip()
+            if choice in ['rock', 'paper', 'scissors']:
+                return choice
+            print("Invalid! Enter rock, paper, or scissors.")
+    
+    def determine_winner(self, player, ai):
+        if player == ai:
+            return "tie"
+        elif self.get_winning_move(player) == ai:
+            return "ai"
+        else:
+            return "player"
+    
+    def display_emojis(self, choice):
+        emojis = {'rock': '🪨', 'paper': '📄', 'scissors': '✂️'}
+        return emojis.get(choice, choice)
+    
+    def play_round(self):
+        player = self.get_player_choice()
+        ai = self.ai_choose()
+        
+        self.player_history.append(player)
+        
+        self.clear_screen()
+        print("🤖 Rock Paper Scissors vs AI")
+        print("=" * 30)
+        print(f"You:     {self.display_emojis(player)}")
+        print(f"AI:      {self.display_emojis(ai)}")
+        
+        result = self.determine_winner(player, ai)
+        if result == "player":
+            self.player_score += 1
+            print("\n✅ YOU WIN!")
+        elif result == "ai":
+            self.ai_score += 1
+            print("\n❌ AI WINS!")
+        else:
+            print("\n🤝 TIE!")
+        
+        print(f"\nScore: You {self.player_score} | AI {self.ai_score}")
+        if len(self.player_history) >= 5:
+            recent = Counter(self.player_history[-5:]).most_common(1)[0]
+            print(f"AI Notice: You played {recent[0]} most recently...")
+    
+    def play_game(self):
+        print("🤖 Welcome to Rock Paper Scissors vs AI!")
+        print("AI learns your patterns to beat you!\n")
+        
+        while True:
+            self.play_round()
+            
+            play_again = input("\nPlay again? (y/n): ").lower()
+            if play_again != 'y':
+                print(f"\nFinal Score: You {self.player_score} | AI {self.ai_score}")
+                print("Thanks for playing! 👋")
+                break
+
+# Run the game
+if __name__ == "__main__":
+    game = RockPaperScissorsAI()
+    game.play_game()
